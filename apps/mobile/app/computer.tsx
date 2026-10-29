@@ -41,6 +41,7 @@ import { ComputerModePicker } from "../components/computers/computer-mode-picker
 import { GlassIconButton } from "../components/native/glass-icon-button";
 import { NativeActionButton } from "../components/native/native-action-button";
 import { currentApiBase, rpc } from "../lib/api/api";
+import { serverHeadersForUrl } from "../lib/api/server-headers";
 import { errorText } from "../lib/api/user-error";
 import { stacksAtTextScale } from "../lib/appearance/text-scale";
 import {
@@ -265,7 +266,10 @@ export default function Computer() {
         // Only the proxy answers probes; another screen is loaded again straight away.
         const probe = url && isProxiedScreenPage(url) ? screenProbeUrl(url) : null;
         void waitForScreenPage(
-          async (signal) => (probe ? screenPageStatus(probe, fetch, signal) : 200),
+          async (signal) =>
+            probe
+              ? screenPageStatus(probe, fetch, signal, serverHeadersForUrl(probe, currentApiBase()))
+              : 200,
           { signal: wait.signal },
         ).then((outcome) => {
           if (outcome === "cancelled") {
@@ -849,7 +853,10 @@ function ScreenWebView({
       // Reload when control enables the native keyboard. The boot script only
       // runs on load, and a view-only page never attaches the key bridge.
       key={`${nativeKeyboard ? "keys" : "view"}:${sourceUrl.current}`}
-      source={{ uri: sourceUrl.current }}
+      source={{
+        uri: sourceUrl.current,
+        headers: serverHeadersForUrl(sourceUrl.current, currentApiBase()),
+      }}
       injectedJavaScriptBeforeContentLoaded={
         nativeKeyboard ? NATIVE_COMPUTER_KEYBOARD_BOOT : undefined
       }

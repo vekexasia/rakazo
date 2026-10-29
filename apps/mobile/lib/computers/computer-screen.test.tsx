@@ -219,6 +219,7 @@ vi.mock("../../components/computers/computer-mode-picker", () => {
 
 const apiBase = vi.hoisted(() => ({ current: "https://api.example.test" }));
 vi.mock("../api/api", () => ({ currentApiBase: () => apiBase.current, rpc }));
+vi.mock("../api/server-headers", () => ({ serverHeadersForUrl: () => ({}) }));
 
 vi.mock("../native/native", () => ({
   useMobileTokens: () => ({
